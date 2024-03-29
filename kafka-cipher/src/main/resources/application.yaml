@@ -4,5 +4,13 @@ spring:
   kafka:
     bootstrap-servers: "localhost:19092"
 
-logging.level.fr.axa.demo: DEBUG
+logging.level:
+  fr.axa.demo: DEBUG
+  org.apache.kafka.clients.admin.AdminClientConfig: WARN
+  org.apache.kafka.clients.producer.ProducerConfig: WARN
+  org.apache.kafka.clients.producer.internals: WARN
+  org.apache.kafka.clients.consumer.ConsumerConfig: WARN
+  org.apache.kafka.clients.consumer.internals: WARN
 
+logging.pattern.console: "%clr(%d{HH:mm:ss.SSS}){faint} |%clr(%-5p){}|%clr(%-36.36logger{35}){cyan}| %m%n"
+spring.output.ansi.enabled: ALWAYS
