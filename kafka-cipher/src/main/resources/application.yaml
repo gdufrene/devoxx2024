@@ -1,0 +1,8 @@
+spring.application.name: kafka-cipher
+
+spring:
+  kafka:
+    bootstrap-servers: "localhost:19092"
+
+logging.level.fr.axa.demo: DEBUG
+
