@@ -61,14 +61,15 @@ class NewUserGenerator {
 	public void generateUser() throws JsonProcessingException, GeneralSecurityException, IOException {
 		UserData user = new UserData(
 			UUID.randomUUID().toString(),
+			"test.username@mailtest.com",
 			"test",
 			"username",
-			"test.username@mailtest.com",
 			"+33633663366"
 		);
 
 		String json = mapper.writeValueAsString(user);
-		kafka.send(KafkaCipherApplication.TOPIC_NAME, json);
+		String event = json;
+		kafka.send(KafkaCipherApplication.TOPIC_NAME, event);
 
 		log.debug("New user created and sent with ID {}", user.id());
 	}
