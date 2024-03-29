@@ -2,6 +2,7 @@ package fr.axa.demo.kafka;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -68,7 +69,7 @@ class NewUserGenerator {
 		);
 
 		String json = mapper.writeValueAsString(user);
-		String event = json;
+		String event = Base64.getEncoder().encodeToString(json.getBytes());
 		kafka.send(KafkaCipherApplication.TOPIC_NAME, event);
 
 		log.debug("New user created and sent with ID {}", user.id());
@@ -85,7 +86,7 @@ class NewUserHandler {
     @KafkaListener(id = "myId", topics = KafkaCipherApplication.TOPIC_NAME)
     public void listen(String event) throws JsonProcessingException, GeneralSecurityException, IOException {
 		
-		String json = event;
+		String json = new String(Base64.getDecoder().decode(event));
     	UserData user = mapper.readValue(json, UserData.class);
     	
     	log.debug("A new user {} has been registered with email {}", user.id(), user.mail());
