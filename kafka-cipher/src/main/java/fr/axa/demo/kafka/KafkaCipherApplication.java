@@ -52,11 +52,9 @@ public class KafkaCipherApplication {
 class NewUserGenerator {
 	private final Logger log = LoggerFactory.getLogger(NewUserGenerator.class);
 
-	@Autowired
-	KafkaTemplate<String, String> kafka;
+	@Autowired KafkaTemplate<String, String> kafka;
 	
-	@Autowired
-	ObjectMapper mapper;
+	@Autowired ObjectMapper mapper;
 
 	@Scheduled(fixedDelay = 2, timeUnit = TimeUnit.SECONDS)
 	public void generateUser() throws JsonProcessingException, GeneralSecurityException, IOException {
@@ -72,7 +70,7 @@ class NewUserGenerator {
 		String event = Base64.getEncoder().encodeToString(json.getBytes());
 		kafka.send(KafkaCipherApplication.TOPIC_NAME, event);
 
-		log.debug("New user created and sent with ID {}", user.id());
+		log.debug(">> New user sent {}", event);
 	}
 }
 
@@ -80,8 +78,7 @@ class NewUserGenerator {
 class NewUserHandler {
 	private final Logger log = LoggerFactory.getLogger(NewUserHandler.class);
 
-	@Autowired
-	ObjectMapper mapper;
+	@Autowired ObjectMapper mapper;
 	
     @KafkaListener(id = "myId", topics = KafkaCipherApplication.TOPIC_NAME)
     public void listen(String event) throws JsonProcessingException, GeneralSecurityException, IOException {
@@ -89,7 +86,7 @@ class NewUserHandler {
 		String json = new String(Base64.getDecoder().decode(event));
     	UserData user = mapper.readValue(json, UserData.class);
     	
-    	log.debug("A new user {} has been registered with email {}", user.id(), user.mail());
+    	log.debug("<< Received user id:{} \n{}", user.id(), user);
     }
 }
 
