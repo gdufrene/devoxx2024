@@ -3,6 +3,14 @@ spring.application.name: kafka-cipher
 spring:
   kafka:
     bootstrap-servers: "localhost:19092"
+    producer:
+      compression-type: "none"
+      value-serializer: fr.axa.demo.kafka.SecuredDataSerializer
+      properties:
+        "secret.key": ${secret.key}
+    consumer:
+      properties:
+        "secret.key": ${secret.key}
 
 logging.level:
   fr.axa.demo: DEBUG
@@ -14,3 +22,4 @@ logging.level:
 
 logging.pattern.console: "%clr(%d{HH:mm:ss.SSS}){faint} |%clr(%-5p){}|%clr(%-36.36logger{35}){cyan}| %m%n"
 spring.output.ansi.enabled: ALWAYS
+

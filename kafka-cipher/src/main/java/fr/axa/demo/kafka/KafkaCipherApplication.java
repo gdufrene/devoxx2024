@@ -1,33 +1,36 @@
 package fr.axa.demo.kafka;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.admin.NewTopic;
+import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.boot.ssl.SslBundles;
 import org.springframework.context.annotation.Bean;
 import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.config.TopicBuilder;
+import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootApplication
 @EnableScheduling
 public class KafkaCipherApplication {
 	
-	public static final String TOPIC_NAME = "new-user-event"; 
+	public static final String TOPIC_NAME = "new-user-event";
+	
+	private final Logger log = LoggerFactory.getLogger(KafkaCipherApplication.class);
 
 	public static void main(String[] args) {
 		SpringApplication.run(KafkaCipherApplication.class, args);
@@ -42,8 +45,19 @@ public class KafkaCipherApplication {
     }
 
     @Bean
-    public ObjectMapper mapper() {
-    	return new ObjectMapper();
+    public ConsumerFactory<String, UserData> consumerFactory(KafkaProperties kafkaProperties, SslBundles sslBubles) {
+    	log.info("create consumer factory for UserData.");
+    	StringDeserializer keyDeserializer = new StringDeserializer();
+    	SecuredObjectDeserializer<UserData> valueDeserializer = new SecuredObjectDeserializer<UserData>(UserData.class);
+		return new DefaultKafkaConsumerFactory<String, UserData>(kafkaProperties.buildConsumerProperties(sslBubles),
+				keyDeserializer, valueDeserializer);
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, UserData> kafkaListenerContainerFactory(ConsumerFactory<String, UserData> consumer) {
+        ConcurrentKafkaListenerContainerFactory<String, UserData> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(consumer);
+        return factory;
     }
 
 }
@@ -52,12 +66,10 @@ public class KafkaCipherApplication {
 class NewUserGenerator {
 	private final Logger log = LoggerFactory.getLogger(NewUserGenerator.class);
 
-	@Autowired KafkaTemplate<String, String> kafka;
-	
-	@Autowired ObjectMapper mapper;
+	@Autowired KafkaTemplate<String, UserData> kafka;
 
 	@Scheduled(fixedDelay = 2, timeUnit = TimeUnit.SECONDS)
-	public void generateUser() throws JsonProcessingException, GeneralSecurityException, IOException {
+	public void generateUser() {
 		UserData user = new UserData(
 			UUID.randomUUID().toString(),
 			"test.username@mailtest.com",
@@ -66,27 +78,18 @@ class NewUserGenerator {
 			"+33633663366"
 		);
 
-		String json = mapper.writeValueAsString(user);
-		String event = Base64.getEncoder().encodeToString(json.getBytes());
-		kafka.send(KafkaCipherApplication.TOPIC_NAME, event);
-
-		log.debug(">> New user sent {}", event);
+		kafka.send(KafkaCipherApplication.TOPIC_NAME, user);
+		log.debug(">> New user sent id:{}", user.id());
 	}
 }
 
 @Component
 class NewUserHandler {
 	private final Logger log = LoggerFactory.getLogger(NewUserHandler.class);
-
-	@Autowired ObjectMapper mapper;
 	
     @KafkaListener(id = "myId", topics = KafkaCipherApplication.TOPIC_NAME)
-    public void listen(String event) throws JsonProcessingException, GeneralSecurityException, IOException {
-		
-		String json = new String(Base64.getDecoder().decode(event));
-    	UserData user = mapper.readValue(json, UserData.class);
-    	
-    	log.debug("<< Received user id:{} \n{}", user.id(), user);
+    public void listen(@Payload UserData user) {
+		log.debug("<< Received user id:{} \n{}", user.id(), user);
     }
 }
 
