@@ -1,0 +1,36 @@
+
+              ██████████                                                      
+           ████░░░░░░░░░░██████                                               
+         ██░░░░░░░░░░░░░░░░░░░░██                                             
+        ██░░░░░░░░░░░░░░░░░░░░░░░░██    ████                                  
+      ▓▓░░░░░░░░░░░░░░░░░░░░░░░░░░██  ██░░██                                  
+      ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░██░░░░████████████████████████████████    
+    ██░░░░░░██████░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░██  
+    ██░░░░██      ██░░░░░░░░                ░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░██
+    ██░░░░██      ▓▓░░░░░░░  Vault Keys Mock  ░░░░░░░░░░░░░░░░░░░░░░░░░░░░██  
+    ██░░░░██      ██░░░░░░░░                 ░░░░░░░▓▓░░░░░░░░▓▓░░░░░░░░██    
+    ██░░░░░░██████░░░░░░░░░░░░░░░░░░░░░░░░██████░░██  ██░░░░██  ████████      
+      ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░██░░░░██    ██      ████                  
+      ██░░░░░░░░░░░░░░░░░░░░░░░░░░██  ██░░██                                  
+        ██░░░░░░░░░░░░░░░░░░░░░░░░██    ████                                  
+          ██░░░░░░░░░░░░░░░░░░░░██                                            
+            ████░░░░░░░░░░██████                                              
+           ░░░░▓▓▓▓▓▓▓▓▓▓░░░░░░                                               
+ 
+   GET /keys/current
+       return the current cipher key ID and generation date as :
+       response :
+         body { "id": string, "generated": string }
+   
+   POST /keys/{kid}/encrypt
+       encrypt data provided as a base64 string
+       return ciphered data as a base64 string
+       request :
+         path {kid} is an integer for key identifier
+         body { "data": string }
+       response :
+         body { "data": string }
+   
+   POST /keys/{kid}/decrypt
+       decrypt data provided as a base64 string
+       @see encrypt operation details

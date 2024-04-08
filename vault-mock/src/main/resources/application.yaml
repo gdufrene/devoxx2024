@@ -1,0 +1,3 @@
+spring.application.name: vault-mock
+server.port: 8082
+logging.pattern.console: "%d{yyyy-MM-dd HH:mm:ss} | %-5level | %40logger{36} | %msg%n"

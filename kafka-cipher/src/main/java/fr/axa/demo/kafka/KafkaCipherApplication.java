@@ -1,5 +1,6 @@
 package fr.axa.demo.kafka;
 
+import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -24,6 +25,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 @SpringBootApplication
 @EnableScheduling
 public class KafkaCipherApplication {
@@ -39,13 +43,13 @@ public class KafkaCipherApplication {
     @Bean
     public NewTopic topic() {
         return TopicBuilder.name(TOPIC_NAME)
-                .partitions(3)
-                .replicas(1)
-                .build();
+	            .partitions(3)
+	            .replicas(1)
+	            .build();
     }
 
     @Bean
-    public ConsumerFactory<String, UserData> consumerFactory(KafkaProperties kafkaProperties, SslBundles sslBubles) {
+    public ConsumerFactory<String, UserData> consumerFactory(KafkaProperties kafkaProperties, SslBundles sslBubles) throws NoSuchAlgorithmException {
     	log.info("create consumer factory for UserData.");
     	StringDeserializer keyDeserializer = new StringDeserializer();
     	SecuredObjectDeserializer<UserData> valueDeserializer = new SecuredObjectDeserializer<UserData>(UserData.class);
@@ -58,6 +62,13 @@ public class KafkaCipherApplication {
         ConcurrentKafkaListenerContainerFactory<String, UserData> factory = new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumer);
         return factory;
+    }
+
+    // Used by RestClient
+    @Bean
+    public ObjectMapper mapper() {
+        return new ObjectMapper()
+            .registerModule( new JavaTimeModule() );
     }
 
 }

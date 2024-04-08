@@ -1,11 +1,12 @@
 spring.application.name: kafka-cipher
+server.port: 8081
 
 spring:
   kafka:
     bootstrap-servers: "localhost:19092"
     producer:
       compression-type: "none"
-      value-serializer: fr.axa.demo.kafka.SecuredDataSerializer
+      value-serializer: fr.axa.demo.kafka.SecuredObjectSerializer
       properties:
         "secret.key": ${secret.key}
     consumer:
