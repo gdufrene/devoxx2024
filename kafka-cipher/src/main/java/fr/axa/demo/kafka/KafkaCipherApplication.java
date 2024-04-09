@@ -1,8 +1,5 @@
 package fr.axa.demo.kafka;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.kafka.clients.admin.NewTopic;
@@ -19,14 +16,11 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 @SpringBootApplication
 @EnableScheduling
 public class KafkaCipherApplication {
 	
-	public static final String TOPIC_NAME = "new-user-event"; 
+	public static final String TOPIC_NAME = "hello-devoxx"; 
 
 	public static void main(String[] args) {
 		SpringApplication.run(KafkaCipherApplication.class, args);
@@ -40,55 +34,30 @@ public class KafkaCipherApplication {
                 .build();
     }
 
-    @Bean
-    public ObjectMapper mapper() {
-    	return new ObjectMapper();
-    }
-
 }
 
 @Component
-class NewUserGenerator {
-	private final Logger log = LoggerFactory.getLogger(NewUserGenerator.class);
+class EventGenerator {
+	private final Logger log = LoggerFactory.getLogger(EventGenerator.class);
 
 	@Autowired
 	KafkaTemplate<String, String> kafka;
-	
-	@Autowired
-	ObjectMapper mapper;
 
 	@Scheduled(fixedDelay = 2, timeUnit = TimeUnit.SECONDS)
-	public void generateUser() throws JsonProcessingException, GeneralSecurityException, IOException {
-		UserData user = new UserData(
-			UUID.randomUUID().toString(),
-			"test.username@mailtest.com",
-			"test",
-			"username",
-			"+33633663366"
-		);
-
-		String json = mapper.writeValueAsString(user);
-		String event = json;
+	public void generateText() { 
+		String event = "Hi devoxx 2024 !";
 		kafka.send(KafkaCipherApplication.TOPIC_NAME, event);
-
-		log.debug("New user created and sent with ID {}", user.id());
+		log.debug("sent: {}", event);
 	}
 }
 
 @Component
-class NewUserHandler {
-	private final Logger log = LoggerFactory.getLogger(NewUserHandler.class);
-
-	@Autowired
-	ObjectMapper mapper;
+class EventHandler {
+	private final Logger log = LoggerFactory.getLogger(EventHandler.class);
 	
     @KafkaListener(id = "myId", topics = KafkaCipherApplication.TOPIC_NAME)
-    public void listen(String event) throws JsonProcessingException, GeneralSecurityException, IOException {
-		
-		String json = event;
-    	UserData user = mapper.readValue(json, UserData.class);
-    	
-    	log.debug("A new user {} has been registered with email {}", user.id(), user.mail());
+    public void listen(String event) {
+    	log.debug("Received: {}", event);
     }
 }
 
