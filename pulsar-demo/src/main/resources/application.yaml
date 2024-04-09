@@ -1,0 +1,11 @@
+spring.application.name: pulsar-demo
+
+spring.pulsar.producer.compression-type: ZLIB
+
+logging.level:
+  fr.axa.demo.pulsar: DEBUG
+  fr.axa.demo.pulsar.VaultCryptoMessage: TRACE
+  org.apache.pulsar.common.util.netty.DnsResolverUtil: ERROR
+
+logging.pattern.console: "%clr(%d{HH:mm:ss.SSS}){faint} |%clr(%-5p){}|%clr(%-36.36logger{35}){cyan}| %m%n"
+spring.output.ansi.enabled: ALWAYS

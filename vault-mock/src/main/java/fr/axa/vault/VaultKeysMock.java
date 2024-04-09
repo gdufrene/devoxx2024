@@ -49,54 +49,64 @@ record KeyInfo(String id, OffsetDateTime generated) {}
 @RestController
 @RequestMapping("/keys")
 class KeyController {
-	
+
 	private final Logger log = LoggerFactory.getLogger(KeyController.class);
-	
+
 	private Map<Integer, KeyPair> keys = new ConcurrentHashMap<>();
 	private AtomicReference<KeyInfo> currentKey = new AtomicReference<>();
 	private AtomicInteger serial = new AtomicInteger(1);
-	
+
+	private KeyPairGenerator kpg;
+
+	public KeyController() throws NoSuchAlgorithmException {
+		kpg = KeyPairGenerator.getInstance("RSA");
+		kpg.initialize(2048);
+	}
+
 	@Scheduled(fixedDelay = 20, timeUnit = TimeUnit.SECONDS)
 	public void keyRotate() throws NoSuchAlgorithmException {
-		KeyPairGenerator kpg = KeyPairGenerator.getInstance("RSA");
-		kpg.initialize(2048);
 		KeyPair kp = kpg.generateKeyPair();
 		Integer newId = serial.getAndIncrement();
 		keys.put(newId, kp);
 		currentKey.set(new KeyInfo(newId.toString(), OffsetDateTime.now()));
-		log.info("New keypair generated with id {}", newId);
+		log.info("🔑 New keypair generated with id {}", newId);
 	}
-	
+
 	@GetMapping("/current")
 	public KeyInfo current() {
 		return currentKey.get();
 	}
-	
+
 	@PostMapping("/{kid}/encrypt")
 	public CipherData cipher(@PathVariable Integer kid, @RequestBody CipherData operation) 
 			throws FileNotFoundException, GeneralSecurityException {
 		return crypto(kid, Cipher.ENCRYPT_MODE, operation);
 	}
-	
+
 	@PostMapping("/{kid}/decrypt")
 	public CipherData uncipher(@PathVariable Integer kid, @RequestBody CipherData operation)
 			throws FileNotFoundException, GeneralSecurityException {
 		return crypto(kid, Cipher.DECRYPT_MODE, operation);
 	}
-	
+
 	private CipherData crypto(Integer kid, int mode, CipherData operation) 
 			throws FileNotFoundException, GeneralSecurityException {
+		long start = System.currentTimeMillis();
 		KeyPair kp = Optional.ofNullable( keys.get(kid) )
 			.orElseThrow( () -> new FileNotFoundException("Key="+kid) );
-		
+
 		Cipher cipher = Cipher.getInstance("RSA/ECB/OAEPPadding");
 		OAEPParameterSpec oaepParams = new OAEPParameterSpec("SHA-256", "MGF1", new MGF1ParameterSpec("SHA-256"), PSource.PSpecified.DEFAULT);
 		cipher.init(mode, mode == Cipher.ENCRYPT_MODE ? kp.getPublic() : kp.getPrivate(), oaepParams);
 		byte[] data = Base64.getDecoder().decode(operation.data());
 		byte[] res = cipher.doFinal( data );
+		log.info("🚩 {} 📦 {} bytes in ⏰ {}ms", 
+				mode == Cipher.ENCRYPT_MODE ? "Encrypt" : "Decrypt",
+				data.length, 
+				System.currentTimeMillis() - start);
 		return new CipherData( Base64.getEncoder().encodeToString(res) );
 	}
-	
+
 }
 
 

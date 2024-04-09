@@ -1,3 +1,5 @@
 spring.application.name: vault-mock
 server.port: 8082
-logging.pattern.console: "%d{yyyy-MM-dd HH:mm:ss} | %-5level | %40logger{36} | %msg%n"
+
+logging.pattern.console: "%clr(%d{HH:mm:ss.SSS}){faint} |%clr(%-5p){}|%clr(%-36.36logger{35}){cyan}| %m%n"
+spring.output.ansi.enabled: ALWAYS

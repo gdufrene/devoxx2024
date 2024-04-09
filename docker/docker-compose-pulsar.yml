@@ -1,0 +1,16 @@
+version: '2'
+
+services:
+  pulsar:
+    image: apachepulsar/pulsar:3.1.2
+    command: bin/pulsar standalone
+    ports:
+      - '6650:6650'
+      - '8080:8080'
+  pulsar-manager:
+    image: apachepulsar/pulsar-manager:v0.3.0
+    ports:
+      - '9527:9527'
+      - '7750:7750'
+    environment:
+      SPRING_CONFIGURATION_FILE: '/pulsar-manager/pulsar-manager/application.properties'

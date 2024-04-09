@@ -1,4 +1,4 @@
-
+${AnsiColor.YELLOW}
               ██████████                                                      
            ████░░░░░░░░░░██████                                               
          ██░░░░░░░░░░░░░░░░░░░░██                                             
@@ -13,16 +13,20 @@
       ██░░░░░░░░░░░░░░░░░░░░░░░░░░░░██░░░░██    ██      ████                  
       ██░░░░░░░░░░░░░░░░░░░░░░░░░░██  ██░░██                                  
         ██░░░░░░░░░░░░░░░░░░░░░░░░██    ████                                  
-          ██░░░░░░░░░░░░░░░░░░░░██                                            
+          ██░░░░░░░░░░░░░░░░░░░░██                ${AnsiColor.DEFAULT}Made with ${AnsiColor.GREEN}spring-boot${AnsiColor.YELLOW}       
             ████░░░░░░░░░░██████                                              
            ░░░░▓▓▓▓▓▓▓▓▓▓░░░░░░                                               
+ ${AnsiColor.DEFAULT}
  
-   GET /keys/current
+ Provide some crypto operations handled with RSA-OEAP.
+ Rotate key material every 20 seconds.
+ 
+   ${AnsiColor.GREEN}GET ${AnsiColor.CYAN}/keys/current ${AnsiColor.DEFAULT}
        return the current cipher key ID and generation date as :
        response :
          body { "id": string, "generated": string }
    
-   POST /keys/{kid}/encrypt
+   ${AnsiColor.RED}POST ${AnsiColor.CYAN}/keys/{kid}/encrypt ${AnsiColor.DEFAULT}
        encrypt data provided as a base64 string
        return ciphered data as a base64 string
        request :
@@ -31,6 +35,6 @@
        response :
          body { "data": string }
    
-   POST /keys/{kid}/decrypt
+   ${AnsiColor.RED}POST ${AnsiColor.CYAN}/keys/{kid}/decrypt ${AnsiColor.DEFAULT}
        decrypt data provided as a base64 string
        @see encrypt operation details
