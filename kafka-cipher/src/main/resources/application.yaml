@@ -3,6 +3,8 @@ spring.application.name: kafka-cipher
 spring:
   kafka:
     bootstrap-servers: "localhost:19092"
+    producer.value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer.value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
 
 logging.level:
   fr.axa.demo: DEBUG
