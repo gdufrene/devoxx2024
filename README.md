@@ -2,11 +2,12 @@
 # Confidentialité des données sur les offres SaaS Kafka ou Pulsar
 
 Guillaume DUFRENE, Staff Engineer @ AXA France
-- devoxx 2024
+- Devoxx 2024
+- Cloud Nord 2024
 
 ## A propos
 
-Ce repository contient l'ensemble du code présenté à devoxx en avril 2024.  
+Ce repository contient l'ensemble du code présenté à devoxx en avril 2024 et à cloud nord en octobre 2024.
 
 
 __Attention__  
