@@ -4,6 +4,7 @@
 Guillaume DUFRENE, Staff Engineer @ AXA France
 - Devoxx 2024
 - Cloud Nord 2024
+- Forum InCYBER Lille 2025
 
 ## A propos
 
